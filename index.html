@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的导航页</title>
+  <title>Fishing's Home</title>
 
   <!-- Google Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -888,12 +888,12 @@
       const config = {
         topBarTitle: '导航中心',            // 顶部栏文字
         user: {
-          name: '我的导航中心',
-          avatar: '👋',
+          name: '鱼の导航中心',
+          avatar: '🐟',
           bio: '快速访问我的所有网站与项目',
         },
         // 背景图片路径 (相对于仓库根目录，例如 './img/bg.jpg')
-        backgroundImage: '',
+        backgroundImage: './img/bg.jpg',
         categories: [
           {
             name: '常用工具',
@@ -947,8 +947,8 @@
 
       // ==================== 设置状态管理 ====================
       const DEFAULT_SETTINGS = {
-        bgEnabled: false,
-        bgBlur: 0,
+        bgEnabled: true,
+        bgBlur: 8,
         bgOpacity: 0.4,
         cardSize: 'small', // 'small' | 'large'
       };
