@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fishing's Home</title>
+  <title>Fishing's Home - 导航中心</title>
 
   <!-- Google Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -990,9 +990,9 @@
         // UI 控件同步
         bgToggle.checked = currentSettings.bgEnabled && !!config.backgroundImage;
         if (bgToggle.checked) {
-          bgConditional.classList.add('bg-conditional');
-        } else {
           bgConditional.classList.remove('bg-conditional');
+        } else {
+          bgConditional.classList.add('bg-conditional');
         }
         bgBlurSlider.value = currentSettings.bgBlur;
         bgBlurValue.textContent = currentSettings.bgBlur + 'px';
