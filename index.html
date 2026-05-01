@@ -105,6 +105,37 @@
       --md-elevation-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.45), 0px 2px 3px 0px rgba(0, 0, 0, 0.4);
     }
 
+    /* 深色模式下滑块、开关等随主题色变化 */
+    [data-theme="dark"] .toggle-slider {
+      background: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
+      border-color: color-mix(in srgb, var(--md-sys-color-primary) 55%, transparent);
+    }
+    [data-theme="dark"] input:checked + .toggle-slider {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+    [data-theme="dark"] .slider-group input[type="range"] {
+      background: color-mix(in srgb, var(--md-sys-color-primary) 25%, transparent);
+    }
+    [data-theme="dark"] .slider-group input[type="range"]::-webkit-slider-thumb {
+      background: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-on-primary);
+    }
+    [data-theme="dark"] .reset-btn {
+      border-color: color-mix(in srgb, var(--md-sys-color-primary) 50%, transparent);
+    }
+    [data-theme="dark"] .reset-btn:hover {
+      border-color: var(--md-sys-color-primary);
+      background: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
+    }
+    [data-theme="dark"] .card-size-btn {
+      border-color: color-mix(in srgb, var(--md-sys-color-primary) 30%, transparent);
+    }
+    [data-theme="dark"] .card-size-btn.active {
+      background: var(--md-sys-color-primary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
     /* ============ 基础重置 ============ */
     *,
     *::before,
@@ -265,6 +296,8 @@
       pointer-events: none;
       transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
       z-index: 25;
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     .settings-panel.open {
@@ -330,12 +363,12 @@
       box-shadow: var(--md-elevation-level1);
     }
 
-    input:checked+.toggle-slider {
+    input:checked + .toggle-slider {
       background: var(--md-sys-color-primary);
       border-color: var(--md-sys-color-primary);
     }
 
-    input:checked+.toggle-slider::before {
+    input:checked + .toggle-slider::before {
       transform: translateX(20px);
     }
 
@@ -872,6 +905,16 @@
           <span class="slider-value" id="bgOpacityValue">0.4</span>
         </div>
       </div>
+
+      <div class="settings-divider"></div>
+      <div class="slider-group">
+        <span class="setting-label" style="min-width: 36px;">
+          <span class="material-symbols-outlined">palette</span> 主题色
+        </span>
+        <input type="range" id="primaryHueSlider" min="0" max="360" value="262" step="1">
+        <span class="slider-value" id="primaryHueValue">262</span>
+      </div>
+
       <div class="settings-divider"></div>
       <div class="setting-row">
         <span class="setting-label">
@@ -976,6 +1019,8 @@
       const bgBlurValue = document.getElementById('bgBlurValue');
       const bgOpacitySlider = document.getElementById('bgOpacitySlider');
       const bgOpacityValue = document.getElementById('bgOpacityValue');
+      const primaryHueSlider = document.getElementById('primaryHueSlider');
+      const primaryHueValue = document.getElementById('primaryHueValue');
       const cardSizeToggle = document.getElementById('cardSizeToggle');
       const resetSettingsBtn = document.getElementById('resetSettingsBtn');
       const searchInput = document.getElementById('searchInput');
@@ -988,6 +1033,7 @@
         bgEnabled: true,
         bgBlur: 4,
         bgOpacity: 1,
+        primaryHue: 262,
         cardSize: 'small',
       };
       let currentSettings = { ...DEFAULT_SETTINGS };
@@ -1002,12 +1048,37 @@
         } catch (e) {}
         currentSettings.bgBlur = Math.min(30, Math.max(0, Number(currentSettings.bgBlur) || 0));
         currentSettings.bgOpacity = Math.min(1, Math.max(0, Number(currentSettings.bgOpacity) || 0.4));
+        currentSettings.primaryHue = Math.min(360, Math.max(0, Number(currentSettings.primaryHue) || 262));
         currentSettings.cardSize = currentSettings.cardSize === 'large' ? 'large' : 'small';
         currentSettings.bgEnabled = !!currentSettings.bgEnabled;
       }
 
       function saveSettings() {
         localStorage.setItem('md3-nav-settings', JSON.stringify(currentSettings));
+      }
+
+      function updatePrimaryColors(hue) {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const s = 30;
+        let primaryL, containerL, onPrimary, onPrimaryContainer;
+        if (isDark) {
+          primaryL = 80;
+          containerL = 30;
+          onPrimary = `hsl(${hue}, 20%, 15%)`;    /* 深色模式：深色圆点 */
+          onPrimaryContainer = '#EADDFF';
+        } else {
+          primaryL = 63;
+          containerL = 90;
+          onPrimary = '#FFFFFF';                    /* 浅色模式：白色圆点 */
+          onPrimaryContainer = '#21005D';
+        }
+        const primary = `hsl(${hue}, ${s}%, ${primaryL}%)`;
+        const primaryContainer = `hsl(${hue}, ${s}%, ${containerL}%)`;
+
+        document.documentElement.style.setProperty('--md-sys-color-primary', primary);
+        document.documentElement.style.setProperty('--md-sys-color-primary-container', primaryContainer);
+        document.documentElement.style.setProperty('--md-sys-color-on-primary', onPrimary);
+        document.documentElement.style.setProperty('--md-sys-color-on-primary-container', onPrimaryContainer);
       }
 
       function applyAllSettings() {
@@ -1033,6 +1104,10 @@
         bgBlurValue.textContent = currentSettings.bgBlur + 'px';
         bgOpacitySlider.value = Math.round(currentSettings.bgOpacity * 100);
         bgOpacityValue.textContent = currentSettings.bgOpacity.toFixed(2);
+
+        primaryHueSlider.value = currentSettings.primaryHue;
+        primaryHueValue.textContent = currentSettings.primaryHue;
+        updatePrimaryColors(currentSettings.primaryHue);
 
         if (currentSettings.cardSize === 'large') {
           document.body.classList.add('card-style-large');
@@ -1097,6 +1172,13 @@
         currentSettings.bgOpacity = parseInt(bgOpacitySlider.value) / 100;
         bgOpacityValue.textContent = currentSettings.bgOpacity.toFixed(2);
         bgImageLayer.style.opacity = currentSettings.bgOpacity;
+        saveSettings();
+      });
+
+      primaryHueSlider.addEventListener('input', () => {
+        currentSettings.primaryHue = parseInt(primaryHueSlider.value);
+        primaryHueValue.textContent = currentSettings.primaryHue;
+        updatePrimaryColors(currentSettings.primaryHue);
         saveSettings();
       });
 
@@ -1209,6 +1291,7 @@
         moon.style.display = theme === 'dark' ? 'none' : '';
         sun.style.display = theme === 'dark' ? '' : 'none';
         localStorage.setItem('md3-nav-theme', theme);
+        updatePrimaryColors(currentSettings.primaryHue);
       }
 
       themeToggle.addEventListener('click', () => {
@@ -1231,8 +1314,8 @@
         if (!config.backgroundImage) {
           currentSettings.bgEnabled = false;
         }
-        applyAllSettings();
         setTheme(getTheme());
+        applyAllSettings();
         renderCategories();
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
